@@ -1,0 +1,24 @@
+import api from './axios'
+import type { Task } from '../types'
+
+export const getTasks = async (): Promise<Task[]> => {
+  const { data } = await api.get('/tasks')
+  return data
+}
+
+export const createTask = async (task: Omit<Task, 'id'>): Promise<Task> => {
+  const { data } = await api.post('/tasks', task)
+  return data
+}
+
+export const updateTask = async (
+  id: number,
+  updates: Partial<Task>,
+): Promise<Task> => {
+  const { data } = await api.put(`/tasks/${id}`, updates)
+  return data
+}
+
+export const deleteTask = async (id: number): Promise<void> => {
+  await api.delete(`/tasks/${id}`)
+}
