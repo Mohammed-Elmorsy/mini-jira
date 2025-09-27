@@ -2,7 +2,7 @@ import { TaskStatus, type Task } from '../types'
 
 type Props = {
   task: Task
-  onUpdateStatus: (status: Task['status']) => void
+  onUpdateStatus: (status: TaskStatus) => void
   onDelete: () => void
 }
 

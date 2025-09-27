@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Login() {
@@ -12,36 +14,55 @@ export default function Login() {
     e.preventDefault()
     try {
       await login(email, password)
+      toast.success('Logged in successfully', { id: 'login' })
       navigate('/tasks')
     } catch {
-      alert('Invalid credentials')
+      toast.error('Failed to log in', { id: 'login' })
     }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center flex-1 px-4 h-[calc(100vh-112px)] bg-gray-100">
       <form
+        className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md"
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl shadow-md w-80"
       >
-        <h1 className="text-xl font-semibold mb-4">Login</h1>
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border rounded p-2 mb-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border rounded p-2 mb-4"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <h1 className="text-2xl font-semibold mb-6 text-center">Login</h1>
+
+        {/* Email */}
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-1" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 transition"
+          />
+        </div>
+
+        {/* Password */}
+        <div className="mb-6">
+          <label className="block text-gray-700 mb-1" htmlFor="password">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 transition"
+          />
+        </div>
+
+        {/* Submit */}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          className="w-full bg-emerald-500 text-white p-3 rounded-lg hover:bg-emerald-600 active:bg-emerald-700 transition cursor-pointer"
         >
           Login
         </button>

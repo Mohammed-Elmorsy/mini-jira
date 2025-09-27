@@ -18,10 +18,12 @@ export const login = async (
 export const register = async (
   email: string,
   password: string,
+  name?: string,
 ): Promise<AuthResponse> => {
   const { data } = await api.post<AuthResponse>('/auth/register', {
     email,
     password,
+    name,
   })
   return data
 }

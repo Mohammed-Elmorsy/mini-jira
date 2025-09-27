@@ -17,9 +17,6 @@ export default function Tasks() {
     const { draggableId, destination } = result
     const task = tasks.find((t) => t.id.toString() === draggableId)
     if (task && task.status !== destination.droppableId) {
-      console.log(
-        `Moving task ${task.id} from ${task.status} to ${destination.droppableId}`,
-      )
       updateTask({
         id: task.id,
         updates: { status: destination.droppableId as TaskStatus },
