@@ -23,6 +23,8 @@ export function useTasks() {
         ...newTask,
       } as Task
 
+      console.log('Optimistically adding task', optimisticTask)
+
       queryClient.setQueryData<Task[]>(
         ['tasks'],
         [...prevTasks, optimisticTask],

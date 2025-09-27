@@ -1,4 +1,4 @@
-import type { Task } from '../types'
+import { TaskStatus, type Task } from '../types'
 
 type Props = {
   task: Task
@@ -8,31 +8,41 @@ type Props = {
 
 const TaskItem = ({ task, onUpdateStatus, onDelete }: Props) => {
   const nextStatus = () => {
-    if (task.status === 'todo') return 'in-progress'
-    if (task.status === 'in-progress') return 'done'
-    return 'todo'
+    if (task.status === TaskStatus.TODO) return TaskStatus.IN_PROGRESS
+    if (task.status === TaskStatus.IN_PROGRESS) return TaskStatus.DONE
+    return TaskStatus.TODO
   }
 
   const nextLabel = () => {
-    if (task.status === 'todo') return 'Start'
-    if (task.status === 'in-progress') return 'Mark Done'
+    if (task.status === TaskStatus.TODO) return 'Start'
+    if (task.status === TaskStatus.IN_PROGRESS) return 'Mark Done'
     return 'Reopen'
   }
 
   return (
     <div
-      className="group p-4 bg-white rounded-xl shadow-md border border-gray-200 
-                 cursor-pointer hover:shadow-lg transition-shadow"
+      className="group p-4 bg-white rounded-xl shadow-md border border-gray-100 
+             cursor-pointer hover:shadow-xl hover:border-indigo-200 transition-all"
     >
-      <h3
-        className={`font-semibold mb-1 ${
-          task.status === 'done'
-            ? 'line-through text-gray-400'
-            : 'text-gray-800'
-        }`}
-      >
-        {task.title}
-      </h3>
+      <div className="flex justify-between items-start mb-2">
+        <h3
+          className={`font-semibold ${
+            task.status === TaskStatus.DONE
+              ? 'line-through text-gray-400'
+              : 'text-gray-800'
+          }`}
+        >
+          {task.title}
+        </h3>
+        <span
+          className={`px-2 py-0.5 rounded text-xs font-medium
+        ${task.status === TaskStatus.TODO ? 'bg-indigo-100 text-indigo-700' : ''}
+        ${task.status === TaskStatus.IN_PROGRESS ? 'bg-amber-100 text-amber-700' : ''}
+        ${task.status === TaskStatus.DONE ? 'bg-emerald-100 text-emerald-700' : ''}`}
+        >
+          {task.status.replace('-', ' ')}
+        </span>
+      </div>
       {task.description && (
         <p className="text-sm text-gray-600 mb-2">{task.description}</p>
       )}
@@ -40,17 +50,18 @@ const TaskItem = ({ task, onUpdateStatus, onDelete }: Props) => {
         Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'}
       </p>
 
-      {/* Buttons hidden by default, visible on hover */}
       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           onClick={() => onUpdateStatus(nextStatus())}
-          className="px-3 py-1 text-xs font-medium bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-3 py-1 text-xs font-medium rounded 
+                 bg-indigo-500 text-white hover:bg-indigo-600"
         >
           {nextLabel()}
         </button>
         <button
           onClick={onDelete}
-          className="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded hover:bg-red-600"
+          className="px-3 py-1 text-xs font-medium rounded 
+                 bg-red-500 text-white hover:bg-red-600"
         >
           Delete
         </button>

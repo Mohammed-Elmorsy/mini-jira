@@ -6,6 +6,12 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'react-hot-toast'
 
 import MainLayout from './layout/MainLayout'
+
+import { AuthProvider } from './contexts/AuthContext'
+
+import ProtectedRoute from './components/ProtectedRoute'
+import RedirectIfAuth from './components/RedirectIfAuth'
+
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -19,9 +25,30 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: 'login', element: <Login /> },
-      { path: 'register', element: <Register /> },
-      { path: 'tasks', element: <Tasks /> },
+      {
+        path: 'login',
+        element: (
+          <RedirectIfAuth>
+            <Login />
+          </RedirectIfAuth>
+        ),
+      },
+      {
+        path: 'register',
+        element: (
+          <RedirectIfAuth>
+            <Register />
+          </RedirectIfAuth>
+        ),
+      },
+      {
+        path: 'tasks',
+        element: (
+          <ProtectedRoute>
+            <Tasks />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 ])
@@ -31,9 +58,11 @@ const queryClient = new QueryClient()
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <Toaster position="top-right" />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+        <Toaster position="top-right" />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </AuthProvider>
     </QueryClientProvider>
   </React.StrictMode>,
 )

@@ -23,11 +23,17 @@ model User {
   tasks     Task[]
 }
 
+enum TaskStatus {
+  TODO        @map("todo")
+  IN_PROGRESS @map("in-progress")
+  DONE        @map("done")
+}
+
 model Task {
   id          Int       @id @default(autoincrement())
   title       String
   description String?
-  status      String    @default("todo")
+  status      TaskStatus    @default(TODO)
   dueDate     DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())

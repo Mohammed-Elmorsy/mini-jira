@@ -1,17 +1,17 @@
 import { Droppable, Draggable } from '@hello-pangea/dnd'
 
 import type { Task } from '../types'
+import { TaskStatus } from '../types'
 import TaskItem from './TaskItem'
-import AddTaskForm from './AddTaskForm'
 
 type Props = {
-  col: { key: Task['status']; title: string; color: string }
+  col: { key: TaskStatus; title: string; color: string }
   tasks: Task[]
-  adding: Task['status'] | null
-  onAddClick: (status: Task['status']) => void
+  adding: TaskStatus | null
+  onAddClick: (status: TaskStatus) => void
   onAddCancel: () => void
   onAddSubmit: (task: Partial<Task>) => void
-  onUpdateStatus: (task: Task, newStatus: Task['status']) => void
+  onUpdateStatus: (task: Task, newStatus: TaskStatus) => void
   onDelete: (id: number) => void
   isLoading?: boolean
   isError?: boolean
@@ -20,10 +20,6 @@ type Props = {
 const TaskColumn = ({
   col,
   tasks,
-  adding,
-  onAddClick,
-  onAddCancel,
-  onAddSubmit,
   onUpdateStatus,
   onDelete,
   isLoading,
@@ -36,7 +32,14 @@ const TaskColumn = ({
         {...provided.droppableProps}
         className="flex-1 p-4 bg-gray-50 rounded-lg shadow-inner"
       >
-        <h2 className={`text-lg font-bold mb-4 ${col.color}`}>{col.title}</h2>
+        <h2
+          className={`text-lg font-bold mb-4 px-2 py-1 rounded-md
+            ${col.key === TaskStatus.TODO ? 'bg-indigo-100 text-indigo-700' : ''}
+            ${col.key === TaskStatus.IN_PROGRESS ? 'bg-amber-100 text-amber-700' : ''}
+            ${col.key === TaskStatus.DONE ? 'bg-emerald-100 text-emerald-700' : ''}`}
+        >
+          {col.title}
+        </h2>
 
         {/* Error state */}
         {isError && (
@@ -79,22 +82,6 @@ const TaskColumn = ({
             ))}
             {provided.placeholder}
           </div>
-        )}
-
-        {/* Add task form */}
-        {adding === col.key ? (
-          <AddTaskForm
-            status={col.key}
-            onAdd={onAddSubmit}
-            onCancel={onAddCancel}
-          />
-        ) : (
-          <button
-            onClick={() => onAddClick(col.key)}
-            className="mt-3 text-sm text-blue-500 hover:underline"
-          >
-            + Add Task
-          </button>
         )}
       </div>
     )}

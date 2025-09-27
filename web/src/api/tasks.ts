@@ -6,7 +6,7 @@ export const getTasks = async (): Promise<Task[]> => {
   return data
 }
 
-export const createTask = async (task: Omit<Task, 'id'>): Promise<Task> => {
+export const createTask = async (task: Partial<Task>): Promise<Task> => {
   const { data } = await api.post('/tasks', task)
   return data
 }
@@ -15,7 +15,7 @@ export const updateTask = async (
   id: number,
   updates: Partial<Task>,
 ): Promise<Task> => {
-  const { data } = await api.put(`/tasks/${id}`, updates)
+  const { data } = await api.patch(`/tasks/${id}`, updates)
   return data
 }
 
