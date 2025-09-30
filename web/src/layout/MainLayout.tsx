@@ -1,7 +1,9 @@
+import type { JSX } from 'react'
+
 import { Outlet } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 
-const MainLayout = () => {
+const MainLayout = (): JSX.Element => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <Navbar />

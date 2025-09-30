@@ -1,15 +1,17 @@
+import type { JSX } from 'react'
 import { Navigate } from 'react-router-dom'
+
 import { useAuth } from '../contexts/AuthContext'
 
 interface Props {
   children: React.ReactNode
 }
 
-export default function ProtectedRoute({ children }: Props) {
+const ProtectedRoute = ({ children }: Props): JSX.Element => {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return <p>Loading...</p> // You can replace with a spinner
+    return <p>Loading...</p>
   }
 
   if (!user) {
@@ -18,3 +20,5 @@ export default function ProtectedRoute({ children }: Props) {
 
   return <>{children}</>
 }
+
+export default ProtectedRoute

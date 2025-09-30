@@ -3,21 +3,51 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 import { useAuth } from '../contexts/AuthContext'
+import Input from '../components/ui/Input'
+import Button from '../components/ui/Button'
+import { validateEmail, validatePassword } from '../utils/validations'
+import type { LoginDto } from '../types/dtos'
 
-export default function Login() {
+const Login = () => {
   const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [form, setForm] = useState<LoginDto>({ email: '', password: '' })
+  const [errors, setErrors] = useState<Partial<LoginDto>>({})
   const navigate = useNavigate()
+
+  const handleChange = (field: keyof LoginDto, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+
+    if (field === 'email') {
+      setErrors((prev) => ({
+        ...prev,
+        email: validateEmail(value) || undefined,
+      }))
+    }
+    if (field === 'password') {
+      setErrors((prev) => ({
+        ...prev,
+        password: validatePassword(value) || undefined,
+      }))
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const newErrors: Partial<LoginDto> = {
+      email: validateEmail(form.email) || undefined,
+      password: validatePassword(form.password) || undefined,
+    }
+    setErrors(newErrors)
+    if (Object.values(newErrors).some(Boolean)) return
+
     try {
-      await login(email, password)
+      await login(form.email, form.password)
       toast.success('Logged in successfully', { id: 'login' })
       navigate('/tasks')
-    } catch {
-      toast.error('Failed to log in', { id: 'login' })
+    } catch (error) {
+      const errorMessage =
+        (error as any).response?.data?.message || 'Failed to login'
+      toast.error(errorMessage, { id: 'login' })
     }
   }
 
@@ -29,44 +59,30 @@ export default function Login() {
       >
         <h1 className="text-2xl font-semibold mb-6 text-center">Login</h1>
 
-        {/* Email */}
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-1" htmlFor="email">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 transition"
-          />
-        </div>
+        <Input
+          label="Email"
+          type="email"
+          value={form.email}
+          onChange={(e) => handleChange('email', e.target.value)}
+          error={errors.email}
+          placeholder="Enter your email"
+        />
 
-        {/* Password */}
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-1" htmlFor="password">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 transition"
-          />
-        </div>
+        <Input
+          label="Password"
+          type="password"
+          value={form.password}
+          onChange={(e) => handleChange('password', e.target.value)}
+          error={errors.password}
+          placeholder="Enter your password"
+        />
 
-        {/* Submit */}
-        <button
-          type="submit"
-          className="w-full bg-emerald-500 text-white p-3 rounded-lg hover:bg-emerald-600 active:bg-emerald-700 transition cursor-pointer"
-        >
+        <Button type="submit" variant="success" className="w-full">
           Login
-        </button>
+        </Button>
       </form>
     </div>
   )
 }
+
+export default Login

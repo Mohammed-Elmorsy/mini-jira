@@ -1,4 +1,7 @@
+import type { JSX } from 'react'
+
 import { TaskStatus, type Task } from '../types'
+import Button from './ui/Button'
 
 type Props = {
   task: Task
@@ -6,7 +9,7 @@ type Props = {
   onDelete: () => void
 }
 
-const TaskItem = ({ task, onUpdateStatus, onDelete }: Props) => {
+const TaskItem = ({ task, onUpdateStatus, onDelete }: Props): JSX.Element => {
   const nextStatus = () => {
     if (task.status === TaskStatus.TODO) return TaskStatus.IN_PROGRESS
     if (task.status === TaskStatus.IN_PROGRESS) return TaskStatus.DONE
@@ -51,20 +54,20 @@ const TaskItem = ({ task, onUpdateStatus, onDelete }: Props) => {
       </p>
 
       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
+        <Button
           onClick={() => onUpdateStatus(nextStatus())}
-          className="px-3 py-1 text-xs font-medium rounded 
-                 bg-indigo-500 text-white hover:bg-indigo-600"
+          variant="primary"
+          className="px-3 py-1 text-xs font-medium"
         >
           {nextLabel()}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onDelete}
-          className="px-3 py-1 text-xs font-medium rounded 
-                 bg-red-500 text-white hover:bg-red-600"
+          variant="danger"
+          className="px-3 py-1 text-xs font-medium"
         >
           Delete
-        </button>
+        </Button>
       </div>
     </div>
   )

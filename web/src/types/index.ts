@@ -4,6 +4,11 @@ export enum TaskStatus {
   DONE = 'DONE',
 }
 
+export interface User {
+  id: number
+  email: string
+  name?: string | null
+}
 export interface Task {
   id: number
   title: string

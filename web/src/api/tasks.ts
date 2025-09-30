@@ -1,12 +1,13 @@
 import api from './axios'
 import type { Task } from '../types'
+import type { CreateTaskDto } from '../types/dtos'
 
 export const getTasks = async (): Promise<Task[]> => {
   const { data } = await api.get('/tasks')
   return data
 }
 
-export const createTask = async (task: Partial<Task>): Promise<Task> => {
+export const createTask = async (task: CreateTaskDto): Promise<Task> => {
   const { data } = await api.post('/tasks', task)
   return data
 }

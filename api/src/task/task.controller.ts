@@ -32,7 +32,7 @@ export class TaskController {
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
     const user = req.user as JwtPayload
-    return this.taskService.create(user.userId, {
+    return this.taskService.create(user.id, {
       ...createTaskDto,
       dueDate: createTaskDto.dueDate
         ? new Date(createTaskDto.dueDate)

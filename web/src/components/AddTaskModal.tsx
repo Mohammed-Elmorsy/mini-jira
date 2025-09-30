@@ -1,29 +1,27 @@
-import { useState } from 'react'
+import { useState, type JSX } from 'react'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 
 import AddTaskForm from './AddTaskForm'
-import type { Task } from '../types'
+import type { CreateTaskDto } from '../types/dtos'
+import Button from './ui/Button'
 
 interface AddTaskModalProps {
-  onSubmit: (task: Partial<Task>) => void
+  onSubmit: (task: CreateTaskDto) => void
 }
 
-export default function AddTaskModal({ onSubmit }: AddTaskModalProps) {
+const AddTaskModal = ({ onSubmit }: AddTaskModalProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleSubmit = (task: Partial<Task>) => {
+  const handleSubmit = (task: CreateTaskDto) => {
     onSubmit(task)
     setIsOpen(false)
   }
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="mb-4 px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition"
-      >
+      <Button variant="primary" onClick={() => setIsOpen(true)}>
         + Add Task
-      </button>
+      </Button>
 
       <Dialog
         open={isOpen}
@@ -50,3 +48,5 @@ export default function AddTaskModal({ onSubmit }: AddTaskModalProps) {
     </>
   )
 }
+
+export default AddTaskModal

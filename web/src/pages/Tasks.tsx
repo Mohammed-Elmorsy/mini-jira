@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useState, type JSX } from 'react'
 import { DragDropContext, type DropResult } from '@hello-pangea/dnd'
 
 import { useTasks } from '../hooks/useTasks'
-import type { Task, TaskStatus } from '../types'
+import type { TaskStatus } from '../types'
 import TaskColumn from '../components/TaskColumn'
 import { taskColumns } from '../constants/task-columns'
 import AddTaskModal from '../components/AddTaskModal'
+import type { CreateTaskDto } from '../types/dtos'
 
-export default function Tasks() {
+const Tasks = (): JSX.Element => {
   const [addingColumn, setAddingColumn] = useState<TaskStatus | null>(null)
   const { tasks, isLoading, isError, createTask, updateTask, deleteTask } =
     useTasks()
@@ -37,7 +38,7 @@ export default function Tasks() {
             onAddClick={(status) => setAddingColumn(status)}
             onAddCancel={() => setAddingColumn(null)}
             onAddSubmit={(task) => {
-              createTask(task as Task)
+              createTask(task as CreateTaskDto)
               setAddingColumn(null)
             }}
             onUpdateStatus={(task, newStatus) =>
@@ -52,3 +53,5 @@ export default function Tasks() {
     </DragDropContext>
   )
 }
+
+export default Tasks

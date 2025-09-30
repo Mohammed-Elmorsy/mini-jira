@@ -1,3 +1,4 @@
+import type { User } from '../types'
 import api from './axios'
 
 export interface AuthResponse {
@@ -28,7 +29,7 @@ export const register = async (
   return data
 }
 
-export const getProfile = async () => {
+export const getProfile = async (): Promise<User> => {
   const { data } = await api.get('/auth/me')
   return data
 }

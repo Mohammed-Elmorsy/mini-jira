@@ -1,59 +1,93 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import type { JSX } from 'react'
+import { NavLink } from 'react-router-dom'
 
-export default function Navbar() {
+import { useAuth } from '../contexts/AuthContext'
+import Button from './ui/Button'
+
+const Navbar = (): JSX.Element => {
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
 
   const handleLogout = () => {
     logout()
-    navigate('/login')
   }
+
+  const baseLink =
+    'font-medium px-4 py-2 rounded-md transition-colors duration-150 shadow-sm'
+  const activeLink = 'bg-indigo-700 text-white'
+  const inactiveLink = 'hover:bg-indigo-500 text-indigo-100'
+
+  // Avatar fallback (first letter of email or name)
+  const avatarLetter =
+    user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'
 
   return (
     <nav className="bg-indigo-600 text-white px-6 py-3 flex justify-between items-center shadow-lg">
-      {/* Brand / Logo */}
-      <Link
-        to="/"
-        className="text-xl font-bold tracking-wide hover:text-indigo-200 transition-colors"
-      >
-        Mini Jira
-      </Link>
-
-      {/* Navigation links */}
-      <div className="flex items-center space-x-3">
-        {user ? (
+      {/* Left links */}
+      <div className="flex items-center space-x-4">
+        {user && (
           <>
-            <Link
+            {/* Avatar + Name as NavLink */}
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                `flex items-center space-x-2 px-3 py-1 rounded-full transition ${
+                  isActive
+                    ? 'bg-indigo-700'
+                    : 'bg-indigo-500 hover:bg-indigo-400'
+                }`
+              }
+            >
+              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-pink-400 text-white font-bold">
+                {avatarLetter}
+              </div>
+              <span className="text-sm font-medium truncate max-w-[120px]">
+                {user.name || user.email}
+              </span>
+            </NavLink>
+
+            <NavLink
               to="/tasks"
-              className="px-4 py-2 rounded-md hover:bg-indigo-500 active:bg-indigo-700 transition-colors duration-150 shadow-sm"
+              className={({ isActive }) =>
+                `${baseLink} ${isActive ? activeLink : inactiveLink}`
+              }
             >
               Tasks
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-pink-500 px-4 py-2 rounded-md shadow-sm hover:bg-pink-600 active:bg-pink-700 transition-colors duration-150"
-            >
-              Logout
-            </button>
+            </NavLink>
           </>
+        )}
+      </div>
+
+      {/* Right links */}
+      <div className="flex items-center space-x-3">
+        {user ? (
+          <div>
+            <Button variant="danger" onClick={handleLogout}>
+              Logout
+            </Button>
+          </div>
         ) : (
           <>
-            <Link
+            <NavLink
               to="/login"
-              className="px-4 py-2 rounded-md hover:bg-indigo-500 active:bg-indigo-700 transition-colors duration-150 shadow-sm"
+              className={({ isActive }) =>
+                `${baseLink} ${isActive ? activeLink : inactiveLink}`
+              }
             >
               Login
-            </Link>
-            <Link
+            </NavLink>
+            <NavLink
               to="/register"
-              className="px-4 py-2 rounded-md hover:bg-indigo-500 active:bg-indigo-700 transition-colors duration-150 shadow-sm"
+              className={({ isActive }) =>
+                `${baseLink} ${isActive ? activeLink : inactiveLink}`
+              }
             >
               Register
-            </Link>
+            </NavLink>
           </>
         )}
       </div>
     </nav>
   )
 }
+
+export default Navbar

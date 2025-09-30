@@ -7,24 +7,31 @@ import { Toaster } from 'react-hot-toast'
 
 import MainLayout from './layout/MainLayout'
 
-import { AuthProvider } from './contexts/AuthContext'
+import AuthProvider from './contexts/AuthContext'
 
 import ProtectedRoute from './components/ProtectedRoute'
 import RedirectIfAuth from './components/RedirectIfAuth'
 
-import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Tasks from './pages/Tasks'
 
 import './index.css'
+import Profile from './pages/Profile'
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />,
     children: [
-      { index: true, element: <Home /> },
+      {
+        index: true,
+        element: (
+          <RedirectIfAuth>
+            <Login />
+          </RedirectIfAuth>
+        ),
+      },
       {
         path: 'login',
         element: (
@@ -46,6 +53,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Tasks />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'profile',
+        element: (
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         ),
       },
