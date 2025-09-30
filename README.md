@@ -82,7 +82,7 @@ It allows users to **register, log in, and manage tasks** (To Do, In Progress, D
    http://localhost:3000/swagger
    ```
 
-### Frontend (Web)
+### 📌 Frontend (Web)
 
 1. Navigate to the frontend folder:
 
