@@ -1,74 +1,57 @@
 import {
-  Body,
-  Request,
   Controller,
   Get,
-  Param,
   Post,
+  Put,
   Delete,
-  UseGuards,
-  Patch,
+  Body,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
 
 import { TaskService } from './task.service'
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
-import { TaskResponseDto } from './dtos/task-response.dto'
 import { CreateTaskDto } from './dtos/create-task.dto'
 import { UpdateTaskDto } from './dtos/update-task.dto'
-import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface'
+import { TaskResponseDto } from './dtos/task-response.dto'
+import { User } from '../auth/decorators/user.decorator'
 
 @ApiTags('tasks')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
+  @Get()
+  @ApiOkResponse({ type: [TaskResponseDto] })
+  findAll(@User('userId') userId: number): Promise<TaskResponseDto[]> {
+    return this.taskService.findAllByUserId(userId)
+  }
+
   @Post()
   @ApiOkResponse({ type: TaskResponseDto })
   create(
-    @Request() req: Express.Request,
+    @User('userId') userId: number,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
-    const user = req.user as JwtPayload
-    return this.taskService.create(user.id, {
-      ...createTaskDto,
-      dueDate: createTaskDto.dueDate
-        ? new Date(createTaskDto.dueDate)
-        : undefined,
-    })
+    return this.taskService.create(userId, createTaskDto)
   }
 
-  @Get()
-  @ApiOkResponse({ type: [TaskResponseDto] })
-  findAll(): Promise<TaskResponseDto[]> {
-    return this.taskService.findAll()
-  }
-
-  @Get(':id')
-  @ApiOkResponse({ type: TaskResponseDto })
-  findOne(@Param('id') id: string): Promise<TaskResponseDto | null> {
-    return this.taskService.findOne(Number(id))
-  }
-
-  @Patch(':id')
+  @Put(':id')
   @ApiOkResponse({ type: TaskResponseDto })
   update(
-    @Param('id') id: string,
+    @User('userId') userId: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.taskService.update(Number(id), {
-      ...updateTaskDto,
-      dueDate: updateTaskDto.dueDate
-        ? new Date(updateTaskDto.dueDate)
-        : undefined,
-    })
+    return this.taskService.update(userId, id, updateTaskDto)
   }
 
   @Delete(':id')
-  @ApiOkResponse({ type: TaskResponseDto })
-  delete(@Param('id') id: string): Promise<TaskResponseDto> {
-    return this.taskService.delete(Number(id))
+  @ApiOkResponse({ type: Boolean })
+  delete(
+    @User('userId') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<boolean> {
+    return this.taskService.delete(userId, id)
   }
 }
