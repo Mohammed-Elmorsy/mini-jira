@@ -32,6 +32,7 @@ enum TaskStatus {
 model Task {
   id          Int       @id @default(autoincrement())
   title       String
+  order       Int       @default(0)
   description String?
   status      TaskStatus    @default(TODO)
   dueDate     DateTime?

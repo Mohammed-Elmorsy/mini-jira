@@ -8,6 +8,9 @@ export class TaskResponseDto {
   @ApiProperty({ example: 'Implement login page' })
   title: string
 
+  @ApiProperty({ example: 1 })
+  order: number
+
   @ApiProperty({
     example: 'Create login form with email and password fields',
     nullable: true,

@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsDateString, IsEnum } from 'class-validator'
+import {
+  IsString,
+  IsOptional,
+  IsDateString,
+  IsEnum,
+  IsNumber,
+} from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { TaskStatus } from '@prisma/client'
 
@@ -6,6 +12,10 @@ export class CreateTaskDto {
   @ApiProperty({ example: 'Implement login page' })
   @IsString()
   title: string
+
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  order: number
 
   @ApiProperty({
     example: 'Create login form with email and password fields',
