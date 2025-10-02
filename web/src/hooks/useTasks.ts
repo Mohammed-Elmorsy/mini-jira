@@ -1,17 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
-import { getTasks, createTask, updateTask, deleteTask } from '../api/tasks'
+import {
+  getTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+  reorderTask,
+} from '../api/tasks'
 import type { Task } from '../types'
 
 export function useTasks() {
   const queryClient = useQueryClient()
 
+  // ---- Fetch Tasks ----
   const tasksQuery = useQuery({
     queryKey: ['tasks'],
     queryFn: getTasks,
   })
 
+  // ---- Create Task ----
   const createTaskMutation = useMutation({
     mutationFn: createTask,
     onMutate: async (newTask) => {
@@ -22,8 +30,6 @@ export function useTasks() {
         id: Date.now(),
         ...newTask,
       } as Task
-
-      console.log('Optimistically adding task', optimisticTask)
 
       queryClient.setQueryData<Task[]>(
         ['tasks'],
@@ -44,6 +50,7 @@ export function useTasks() {
     },
   })
 
+  // ---- Update Task ----
   const updateTaskMutation = useMutation({
     mutationFn: ({ id, updates }: { id: number; updates: Partial<Task> }) =>
       updateTask(id, updates),
@@ -69,6 +76,7 @@ export function useTasks() {
     },
   })
 
+  // ---- Delete Task ----
   const deleteTaskMutation = useMutation({
     mutationFn: deleteTask,
     onMutate: async (id) => {
@@ -93,6 +101,35 @@ export function useTasks() {
     },
   })
 
+  // ---- Reorder Tasks ----
+  const reorderTasksMutation = useMutation({
+    mutationFn: reorderTask,
+    onMutate: async (tasksToReorder) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] })
+      const prevTasks = queryClient.getQueryData<Task[]>(['tasks']) || []
+
+      // Optimistic update: update order locally
+      queryClient.setQueryData<Task[]>(['tasks'], (old = []) =>
+        old.map((t) => {
+          const newOrder = tasksToReorder.find((x) => x.id === t.id)?.order
+          return newOrder !== undefined ? { ...t, order: newOrder } : t
+        }),
+      )
+      toast.loading('Reordering tasks...', { id: 'reorder' })
+      return { prevTasks }
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prevTasks) queryClient.setQueryData(['tasks'], ctx.prevTasks)
+      toast.error('Failed to reorder tasks', { id: 'reorder' })
+    },
+    onSuccess: () => {
+      toast.success('Tasks reordered!', { id: 'reorder' })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    },
+  })
+
   return {
     tasks: tasksQuery.data || [],
     isLoading: tasksQuery.isLoading,
@@ -100,5 +137,6 @@ export function useTasks() {
     createTask: createTaskMutation.mutate,
     updateTask: updateTaskMutation.mutate,
     deleteTask: deleteTaskMutation.mutate,
+    reorderTasks: reorderTasksMutation.mutate,
   }
 }

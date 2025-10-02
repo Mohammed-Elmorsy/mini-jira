@@ -1,11 +1,11 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getProfile } from '../api/auth'
 import { updateUser } from '../api/user'
 import type { User } from '../types'
 
 export const useProfile = () => {
   const token = localStorage.getItem('token')
+  const queryClient = useQueryClient()
 
   const {
     data: profile,
@@ -26,6 +26,10 @@ export const useProfile = () => {
     },
   })
 
+  const clearProfile = () => {
+    queryClient.removeQueries({ queryKey: ['profile'] })
+  }
+
   return {
     profile,
     isLoading,
@@ -33,5 +37,6 @@ export const useProfile = () => {
     updateProfile,
     isUpdating,
     refetchUser: refetch,
+    clearProfile,
   }
 }

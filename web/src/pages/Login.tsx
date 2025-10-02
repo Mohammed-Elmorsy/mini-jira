@@ -20,13 +20,13 @@ const Login = () => {
     if (field === 'email') {
       setErrors((prev) => ({
         ...prev,
-        email: validateEmail(value) || undefined,
+        email: validateEmail(value),
       }))
     }
     if (field === 'password') {
       setErrors((prev) => ({
         ...prev,
-        password: validatePassword(value) || undefined,
+        password: validatePassword(value),
       }))
     }
   }
@@ -34,8 +34,8 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: Partial<LoginDto> = {
-      email: validateEmail(form.email) || undefined,
-      password: validatePassword(form.password) || undefined,
+      email: validateEmail(form.email),
+      password: validatePassword(form.password),
     }
     setErrors(newErrors)
     if (Object.values(newErrors).some(Boolean)) return
@@ -60,21 +60,25 @@ const Login = () => {
         <h1 className="text-2xl font-semibold mb-6 text-center">Login</h1>
 
         <Input
+          name="email"
           label="Email"
           type="email"
           value={form.email}
           onChange={(e) => handleChange('email', e.target.value)}
           error={errors.email}
           placeholder="Enter your email"
+          required={true}
         />
 
         <Input
+          name="password"
           label="Password"
           type="password"
           value={form.password}
           onChange={(e) => handleChange('password', e.target.value)}
           error={errors.password}
           placeholder="Enter your password"
+          required={true}
         />
 
         <Button type="submit" variant="success" className="w-full">

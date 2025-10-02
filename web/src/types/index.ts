@@ -12,6 +12,7 @@ export interface User {
 export interface Task {
   id: number
   title: string
+  order: number
   description?: string | null
   status: TaskStatus
   dueDate?: string | null

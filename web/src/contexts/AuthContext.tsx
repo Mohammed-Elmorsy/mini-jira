@@ -31,7 +31,7 @@ const AuthProvider = ({ children }: Props): JSX.Element => {
     localStorage.getItem('token'),
   )
 
-  const { profile: user, isLoading, refetchUser } = useProfile()
+  const { profile: user, isLoading, refetchUser, clearProfile } = useProfile()
 
   useEffect(() => {
     if (token) {
@@ -59,7 +59,7 @@ const AuthProvider = ({ children }: Props): JSX.Element => {
 
   const logout = () => {
     setToken(null)
-    refetchUser()
+    clearProfile()
   }
 
   return (

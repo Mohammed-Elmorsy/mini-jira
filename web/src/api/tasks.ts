@@ -20,6 +20,13 @@ export const updateTask = async (
   return data
 }
 
+export const reorderTask = async (
+  updates: { id: number; order: number }[],
+): Promise<Task[]> => {
+  const { data } = await api.patch('/tasks/reorder', { tasks: updates })
+  return data
+}
+
 export const deleteTask = async (id: number): Promise<void> => {
   await api.delete(`/tasks/${id}`)
 }

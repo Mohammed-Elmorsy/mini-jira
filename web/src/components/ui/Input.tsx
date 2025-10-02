@@ -18,7 +18,7 @@ const Input = ({
         className="block text-gray-700 mb-1 font-medium"
         htmlFor={props.name}
       >
-        {label}
+        {label} {props.required && <span> *</span>}
       </label>
       <input
         {...props}

@@ -57,29 +57,31 @@ const TaskColumn = (props: Props): JSX.Element => {
             </div>
           ) : (
             <div className="space-y-3">
-              {tasks.map((task, index) => (
-                <Draggable
-                  key={task.id}
-                  draggableId={task.id.toString()}
-                  index={index}
-                >
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <TaskItem
-                        task={task}
-                        onUpdateStatus={(newStatus) =>
-                          onUpdateStatus(task, newStatus)
-                        }
-                        onDelete={() => onDelete(task.id)}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+              {tasks
+                .sort((a, b) => a.order - b.order)
+                .map((task, index) => (
+                  <Draggable
+                    key={task.id}
+                    draggableId={task.id.toString()}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <TaskItem
+                          task={task}
+                          onUpdateStatus={(newStatus) =>
+                            onUpdateStatus(task, newStatus)
+                          }
+                          onDelete={() => onDelete(task.id)}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
               {provided.placeholder}
             </div>
           )}

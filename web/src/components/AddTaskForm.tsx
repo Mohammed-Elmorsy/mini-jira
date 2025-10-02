@@ -15,6 +15,7 @@ interface Props {
 const AddTaskForm = ({ onSubmit, onCancel }: Props) => {
   const [form, setForm] = useState<CreateTaskDto>({
     title: '',
+    order: 0,
     description: '',
     status: TaskStatus.TODO,
     dueDate: null,
@@ -26,7 +27,7 @@ const AddTaskForm = ({ onSubmit, onCancel }: Props) => {
     if (field === 'title') {
       setErrors((prev) => ({
         ...prev,
-        title: validateTaskTitle(value) || undefined,
+        title: validateTaskTitle(value),
       }))
     }
   }
@@ -34,11 +35,17 @@ const AddTaskForm = ({ onSubmit, onCancel }: Props) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const titleError = validateTaskTitle(form.title)
-    setErrors({ title: titleError || undefined })
+    setErrors({ title: titleError })
     if (titleError) return
 
     onSubmit(form)
-    setForm({ title: '', description: '', status: 'todo', dueDate: null })
+    setForm({
+      title: '',
+      order: 0,
+      description: '',
+      status: 'todo',
+      dueDate: null,
+    })
   }
 
   return (

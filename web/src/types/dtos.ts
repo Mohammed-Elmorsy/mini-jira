@@ -15,6 +15,7 @@ export interface UpdateUserDto {
 
 export interface CreateTaskDto {
   title: string
+  order: number
   description?: string
   status?: string
   dueDate?: string | null
