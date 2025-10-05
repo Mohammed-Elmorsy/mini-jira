@@ -2,44 +2,59 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Delete,
   Body,
   Param,
   ParseIntPipe,
+  UseGuards,
+  Patch,
 } from '@nestjs/common'
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 
 import { TaskService } from './task.service'
 import { CreateTaskDto } from './dtos/create-task.dto'
 import { UpdateTaskDto } from './dtos/update-task.dto'
 import { TaskResponseDto } from './dtos/task-response.dto'
 import { User } from '../auth/decorators/user.decorator'
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard'
 
 @ApiTags('tasks')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Get()
   @ApiOkResponse({ type: [TaskResponseDto] })
-  findAll(@User('userId') userId: number): Promise<TaskResponseDto[]> {
+  findAll(
+    @User('id', ParseIntPipe) userId: number,
+  ): Promise<TaskResponseDto[]> {
     return this.taskService.findAllByUserId(userId)
   }
 
   @Post()
   @ApiOkResponse({ type: TaskResponseDto })
   create(
-    @User('userId') userId: number,
+    @User('id', ParseIntPipe) userId: number,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
     return this.taskService.create(userId, createTaskDto)
   }
 
-  @Put(':id')
+  @Patch('/reorder')
+  @ApiOkResponse({ type: TaskResponseDto })
+  reorder(
+    @User('id', ParseIntPipe) userId: number,
+    @Body() updatedTasks: { tasks: { id: number; order: number }[] },
+  ): Promise<TaskResponseDto[]> {
+    return this.taskService.reorder(userId, updatedTasks)
+  }
+
+  @Patch(':id')
   @ApiOkResponse({ type: TaskResponseDto })
   update(
-    @User('userId') userId: number,
+    @User('id', ParseIntPipe) userId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
@@ -49,7 +64,7 @@ export class TaskController {
   @Delete(':id')
   @ApiOkResponse({ type: Boolean })
   delete(
-    @User('userId') userId: number,
+    @User('id', ParseIntPipe) userId: number,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<boolean> {
     return this.taskService.delete(userId, id)

@@ -2,7 +2,7 @@
 
 A **full-stack task management application** inspired by Jira.  
 Built with **NestJS, Prisma, PostgreSQL, React, TypeScript, TailwindCSS**, and **Docker**.  
-It allows users to **register, log in, and manage tasks** (To Do, In Progress, Done) in a kanban-style UI.
+It allows users to **register, log in, and manage tasks** in a kanban-style UI.
 
 ---
 

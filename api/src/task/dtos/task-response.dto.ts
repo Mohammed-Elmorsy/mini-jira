@@ -28,7 +28,4 @@ export class TaskResponseDto {
 
   @ApiProperty({ example: '2025-09-14T10:00:00.000Z' })
   updatedAt: Date
-
-  @ApiProperty({ example: 1 })
-  userId: number
 }

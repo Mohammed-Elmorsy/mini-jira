@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import DatePicker from 'react-datepicker'
 
 import Input from './ui/Input'
 import Button from './ui/Button'
@@ -23,6 +24,9 @@ const AddTaskForm = ({ onSubmit, onCancel }: Props) => {
   const [errors, setErrors] = useState<Partial<CreateTaskDto>>({})
 
   const handleChange = (field: keyof CreateTaskDto, value: string) => {
+    // if (field === 'dueDate') {
+    //   value = value ? transformToISOString(value) : ''
+    // }
     setForm((prev) => ({ ...prev, [field]: value }))
     if (field === 'title') {
       setErrors((prev) => ({
@@ -69,6 +73,26 @@ const AddTaskForm = ({ onSubmit, onCancel }: Props) => {
         placeholder="Enter task description"
         height="300px"
       />
+      <div>
+        <label
+          htmlFor="dueDate"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Due Date
+        </label>
+        <DatePicker
+          id="dueDate"
+          selected={form.dueDate ? new Date(form.dueDate) : null}
+          onChange={(date: Date | null) =>
+            handleChange('dueDate', date ? date.toISOString() : '')
+          }
+          minDate={new Date()}
+          placeholderText="Select a due date"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          dateFormat="yyyy-MM-dd"
+          showPopperArrow={false}
+        />
+      </div>
       <div className="flex justify-end space-x-3 pt-3">
         <Button
           type="button"

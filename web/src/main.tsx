@@ -15,9 +15,10 @@ import RedirectIfAuth from './components/RedirectIfAuth'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Tasks from './pages/Tasks'
+import Profile from './pages/Profile'
 
 import './index.css'
-import Profile from './pages/Profile'
+import 'react-datepicker/dist/react-datepicker.css'
 
 const router = createBrowserRouter([
   {

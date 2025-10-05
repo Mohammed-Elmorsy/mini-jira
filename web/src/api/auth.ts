@@ -3,6 +3,7 @@ import api from './axios'
 
 export interface AuthResponse {
   access_token: string
+  user: User
 }
 
 export const login = async (
@@ -26,10 +27,5 @@ export const register = async (
     password,
     name,
   })
-  return data
-}
-
-export const getProfile = async (): Promise<User> => {
-  const { data } = await api.get('/auth/me')
   return data
 }

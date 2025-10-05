@@ -2,23 +2,20 @@ import type { JSX } from 'react'
 import { Navigate } from 'react-router-dom'
 
 import { useAuth } from '../contexts/AuthContext'
+import LoadingScreen from './ui/LoadingScreen'
 
-interface Props {
-  children: React.ReactNode
-}
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { user, token, initialized } = useAuth()
 
-const ProtectedRoute = ({ children }: Props): JSX.Element => {
-  const { user, loading } = useAuth()
-
-  if (loading) {
-    return <p>Loading...</p>
+  if (!initialized) {
+    return <LoadingScreen message="Checking session..." />
   }
 
-  if (!user) {
+  if (!token || !user) {
     return <Navigate to="/login" replace />
   }
 
-  return <>{children}</>
+  return children
 }
 
 export default ProtectedRoute

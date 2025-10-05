@@ -2,8 +2,8 @@ import {
   createContext,
   useContext,
   useState,
-  type ReactNode,
   useEffect,
+  type ReactNode,
   type JSX,
 } from 'react'
 import { login as loginApi, register as registerApi } from '../api/auth'
@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | undefined
   token: string | null
   loading: boolean
+  initialized: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name?: string) => Promise<void>
   logout: () => void
@@ -30,27 +31,40 @@ const AuthProvider = ({ children }: Props): JSX.Element => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('token'),
   )
+  const [initialized, setInitialized] = useState(false)
 
   const { profile: user, isLoading, refetchUser, clearProfile } = useProfile()
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem('token', token)
-    } else {
-      localStorage.removeItem('token')
+    if (token) localStorage.setItem('token', token)
+    else localStorage.removeItem('token')
+  }, [token])
+
+  useEffect(() => {
+    const init = async () => {
+      if (token) {
+        try {
+          await refetchUser()
+        } catch {
+          setToken(null)
+          clearProfile()
+        }
+      }
+      setInitialized(true)
     }
+    init()
   }, [token])
 
   const login = async (email: string, password: string) => {
-    const { access_token } = await loginApi(email, password)
+    const { access_token, user } = await loginApi(email, password)
     setToken(access_token)
-    await refetchUser()
+    if (user) await refetchUser()
   }
 
   const register = async (email: string, password: string, name?: string) => {
-    const { access_token } = await registerApi(email, password, name)
+    const { access_token, user } = await registerApi(email, password, name)
     setToken(access_token)
-    await refetchUser()
+    if (user) await refetchUser()
   }
 
   const refreshUser = async () => {
@@ -68,6 +82,7 @@ const AuthProvider = ({ children }: Props): JSX.Element => {
         user,
         token,
         loading: isLoading,
+        initialized,
         login,
         register,
         logout,

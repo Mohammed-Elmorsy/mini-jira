@@ -8,9 +8,9 @@ interface Props {
 }
 
 const RedirectIfAuth = (props: Props): JSX.Element => {
-  const { user } = useAuth()
+  const { user, token, initialized } = useAuth()
 
-  if (user) {
+  if (user && token && initialized) {
     return <Navigate to="/tasks" replace />
   }
 

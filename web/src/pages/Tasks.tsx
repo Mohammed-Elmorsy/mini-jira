@@ -1,8 +1,9 @@
 import { useState, useMemo, type JSX } from 'react'
 import { DragDropContext, type DropResult } from '@hello-pangea/dnd'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { useTasks } from '../hooks/useTasks'
-import type { TaskStatus } from '../types'
+import type { Task, TaskStatus } from '../types'
 import TaskColumn from '../components/TaskColumn'
 import { taskColumns } from '../constants/task-columns'
 import AddTaskModal from '../components/AddTaskModal'
@@ -10,6 +11,7 @@ import type { CreateTaskDto } from '../types/dtos'
 import { debounce } from '../utils/debounce'
 
 const Tasks = (): JSX.Element => {
+  const queryClient = useQueryClient()
   const [addingColumn, setAddingColumn] = useState<TaskStatus | null>(null)
   const {
     tasks,
@@ -21,9 +23,9 @@ const Tasks = (): JSX.Element => {
     reorderTasks,
   } = useTasks()
 
-  // Debounce reorder API calls (2s)
+  // Debounce backend call only (UI already updated instantly)
   const debouncedReorder = useMemo(
-    () => debounce(reorderTasks, 2000),
+    () => debounce(reorderTasks, 1500),
     [reorderTasks],
   )
 
@@ -34,7 +36,7 @@ const Tasks = (): JSX.Element => {
     const draggedTask = tasks.find((t) => t.id.toString() === draggableId)
     if (!draggedTask) return
 
-    // Case 1: Different column → update status immediately
+    // Case 1: Move between columns
     if (draggedTask.status !== destination.droppableId) {
       updateTask({
         id: draggedTask.id,
@@ -43,24 +45,38 @@ const Tasks = (): JSX.Element => {
       return
     }
 
-    // Case 2: Same column → reorder full column
+    // Case 2: Reorder within same column
     if (source.droppableId === destination.droppableId) {
+      // 1. get the tasks of the column and sort by current order
       const columnTasks = tasks
         .filter((t) => t.status === source.droppableId)
+        .slice() // copy
         .sort((a, b) => a.order - b.order)
 
-      // move task locally
+      // 2. do the array move
       const [removed] = columnTasks.splice(source.index, 1)
       columnTasks.splice(destination.index, 0, removed)
 
-      // assign new orders
-      const reorderedTasks = columnTasks.map((t, index) => ({
-        id: t.id,
-        order: index,
+      // 3. assign new orders for that column
+      const reorderedColumnTasks = columnTasks.map((t, idx) => ({
+        ...t,
+        order: idx,
       }))
 
-      // debounce API call
-      debouncedReorder(reorderedTasks)
+      // 4. update global cache - replace items by id with the updated ones
+      queryClient.setQueryData<Task[]>(['tasks'], (old = []) => {
+        const updatedMap = new Map(reorderedColumnTasks.map((t) => [t.id, t]))
+        return old.map((t) =>
+          updatedMap.has(t.id) ? (updatedMap.get(t.id) as Task) : t,
+        )
+      })
+
+      // 5. call backend (debounced) with minimal payload
+      const payload = reorderedColumnTasks.map((t) => ({
+        id: t.id,
+        order: t.order,
+      }))
+      debouncedReorder(payload)
     }
   }
 
@@ -72,7 +88,11 @@ const Tasks = (): JSX.Element => {
           <TaskColumn
             key={col.key}
             col={col}
-            tasks={tasks.filter((t) => t.status === col.key)}
+            // NOTE: sort by order BEFORE passing to column
+            tasks={tasks
+              .filter((t) => t.status === col.key)
+              .slice()
+              .sort((a, b) => a.order - b.order)}
             adding={addingColumn}
             onAddClick={(status) => setAddingColumn(status)}
             onAddCancel={() => setAddingColumn(null)}

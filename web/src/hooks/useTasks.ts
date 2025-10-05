@@ -101,32 +101,14 @@ export function useTasks() {
     },
   })
 
-  // ---- Reorder Tasks ----
+  // ---- Reorder Tasks (backend only, no UI mutation here) ----
   const reorderTasksMutation = useMutation({
     mutationFn: reorderTask,
-    onMutate: async (tasksToReorder) => {
-      await queryClient.cancelQueries({ queryKey: ['tasks'] })
-      const prevTasks = queryClient.getQueryData<Task[]>(['tasks']) || []
-
-      // Optimistic update: update order locally
-      queryClient.setQueryData<Task[]>(['tasks'], (old = []) =>
-        old.map((t) => {
-          const newOrder = tasksToReorder.find((x) => x.id === t.id)?.order
-          return newOrder !== undefined ? { ...t, order: newOrder } : t
-        }),
-      )
-      toast.loading('Reordering tasks...', { id: 'reorder' })
-      return { prevTasks }
-    },
-    onError: (_err, _vars, ctx) => {
-      if (ctx?.prevTasks) queryClient.setQueryData(['tasks'], ctx.prevTasks)
-      toast.error('Failed to reorder tasks', { id: 'reorder' })
-    },
     onSuccess: () => {
       toast.success('Tasks reordered!', { id: 'reorder' })
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    onError: () => {
+      toast.error('Failed to reorder tasks', { id: 'reorder' })
     },
   })
 

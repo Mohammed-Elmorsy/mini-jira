@@ -8,12 +8,16 @@ import Spinner from '../components/ui/Spinner'
 import Input from '../components/ui/Input'
 import { validateName } from '../utils/validations'
 import type { UpdateUserDto } from '../types/dtos'
+import { useAuth } from '../contexts/AuthContext'
+import Button from '../components/ui/Button'
 
 const Profile = () => {
   const navigate = useNavigate()
-  const { profile, isLoading, updateProfile, isUpdating } = useProfile()
+  const { user } = useAuth()
+
+  const { isLoading, updateProfile, isUpdating } = useProfile()
   const [isOpen, setIsOpen] = useState(false)
-  const [form, setForm] = useState<UpdateUserDto>({ name: profile?.name ?? '' })
+  const [form, setForm] = useState<UpdateUserDto>({ name: user?.name ?? '' })
   const [errors, setErrors] = useState<Partial<UpdateUserDto>>({})
 
   if (isLoading) {
@@ -24,7 +28,7 @@ const Profile = () => {
     )
   }
 
-  if (!profile) {
+  if (!user) {
     navigate('/login')
     return null
   }
@@ -44,9 +48,10 @@ const Profile = () => {
 
     try {
       await updateProfile({ name: form.name })
-      toast.success('Profile updated successfully 🎉')
+      toast.success('Profile updated successfully')
       setIsOpen(false)
-    } catch {
+    } catch (e) {
+      console.error(e)
       toast.error('Failed to update profile')
     }
   }
@@ -61,29 +66,27 @@ const Profile = () => {
         <div className="space-y-4">
           <div>
             <p className="text-sm font-medium text-gray-500">User ID</p>
-            <p className="text-gray-800">{profile.id}</p>
+            <p className="text-gray-800">{user.id}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Email</p>
-            <p className="text-gray-800">{profile.email}</p>
+            <p className="text-gray-800">{user.email}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Name</p>
-            <p className="text-gray-800">{profile.name || '—'}</p>
+            <p className="text-gray-800">{user.name || '—'}</p>
           </div>
         </div>
 
         <div className="mt-6 flex justify-center">
-          <button
+          <Button
             onClick={() => setIsOpen(true)}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition"
           >
             Edit Profile
-          </button>
+          </Button>
         </div>
       </div>
-
-      {/* Reusable Dialog for editing */}
       <Dialog
         open={isOpen}
         onClose={() => setIsOpen(false)}
@@ -91,6 +94,7 @@ const Profile = () => {
       >
         <form onSubmit={handleUpdate} className="space-y-4">
           <Input
+            name="name"
             label="Name"
             value={form.name || ''}
             onChange={(e) => handleChange('name', e.target.value)}
@@ -98,14 +102,14 @@ const Profile = () => {
             placeholder="Enter your name"
           />
           <div className="flex justify-end space-x-3">
-            <button
+            <Button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+              variant="secondary"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isUpdating}
               className={`px-4 py-2 rounded-md flex items-center justify-center space-x-2 text-white transition ${
@@ -122,7 +126,7 @@ const Profile = () => {
               ) : (
                 'Save'
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </Dialog>
