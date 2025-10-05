@@ -35,7 +35,9 @@ export class AuthService {
       },
     })
 
-    return this.generateToken(user.id, user.email)
+    const token = this.generateToken(user.id, user.email)
+
+    return { ...token, user: { ...user, password: undefined } }
   }
 
   async login(loginDto: LoginDto) {
@@ -47,7 +49,9 @@ export class AuthService {
     const valid = await bcrypt.compare(password, user.password)
     if (!valid) throw new UnauthorizedException('Invalid credentials')
 
-    return this.generateToken(user.id, user.email)
+    const token = this.generateToken(user.id, user.email)
+
+    return { ...token, user: { ...user, password: undefined } }
   }
 
   private generateToken(userId: number, email: string) {

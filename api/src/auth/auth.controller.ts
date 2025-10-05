@@ -34,14 +34,4 @@ export class AuthController {
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto)
   }
-
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserResponseDto })
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  async me(@Req() req: Express.Request) {
-    const user = req.user as JwtPayload
-    if (isNaN(user.id)) return null
-    return this.userService.findOne(user.id)
-  }
 }

@@ -3,8 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  Post,
-  Delete,
   Patch,
   ParseIntPipe,
   UseGuards,
@@ -16,6 +14,7 @@ import { CreateUserDto } from './dtos/create-user.dto'
 import { UpdateUserDto } from './dtos/update-user-dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { UserResponseDto } from './dtos/user-response.dto'
+import { User } from 'src/auth/decorators/user.decorator'
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -24,15 +23,11 @@ import { UserResponseDto } from './dtos/user-response.dto'
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @Post()
-  // create(@Body() createUserDto: CreateUserDto) {
-  //   return this.userService.create(createUserDto)
-  // }
-
-  // @Get()
-  // findAll() {
-  //   return this.userService.findAll()
-  // }
+  @Get('/profile')
+  @ApiOkResponse({ type: UserResponseDto })
+  getUser(@User('id', ParseIntPipe) userId: number) {
+    return this.userService.getUser(userId)
+  }
 
   @Get(':id')
   @ApiOkResponse({ type: UserResponseDto })
@@ -43,14 +38,9 @@ export class UserController {
   @Patch(':id')
   @ApiOkResponse({ type: UserResponseDto })
   update(
-    @Param('id', ParseIntPipe) id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.update(Number(id), updateUserDto)
+    return this.userService.update(id, updateUserDto)
   }
-
-  // @Delete(':id')
-  // delete(@Param('id') id: string) {
-  //   return this.userService.delete(Number(id))
-  // }
 }
