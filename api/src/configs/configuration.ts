@@ -23,6 +23,8 @@ export const getConfigPath = () => {
   switch (process.env.NODE_ENV) {
     case 'production':
       return '.env.production'
+    case 'staging':
+      return '.env.staging'
     case 'test':
       return '.env.test'
     default:
