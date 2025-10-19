@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   api:
     build:
@@ -11,7 +9,6 @@ services:
       - ./api/.env.development
     environment:
       - NODE_ENV=development
-      - DATABASE_HOST=db
     depends_on:
       - db
     restart: unless-stopped
