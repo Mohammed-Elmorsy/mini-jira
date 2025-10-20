@@ -1,53 +1,62 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${DATABASE_DB:-mini_jira}
+    volumes:
+      - pg_data_prod:/var/lib/postgresql/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+    image: mini-jira-api:prod
+    restart: unless-stopped
     env_file:
       - ./api/.env.production
     environment:
-      - NODE_ENV=production
-      - DATABASE_HOST=db
-      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:5432/${DATABASE_NAME}?schema=public
+      NODE_ENV: production
     depends_on:
       db:
         condition: service_healthy
-    restart: unless-stopped
+    networks:
+      - app_network
+    command: ["./docker-entrypoint.sh"]
 
   web:
     build:
       context: ./web
       dockerfile: Dockerfile
+      target: production
+    image: mini-jira-web:prod
+    args:
+      VITE_API_URL: http://api:3000
+    restart: unless-stopped
+    env_file:
+      - ./web/.env.production
+    environment:
+      NODE_ENV: production
     ports:
       - "80:80"
-    environment:
-      - NODE_ENV=production
     depends_on:
       - api
-    restart: unless-stopped
-
-  db:
-    image: postgres:15-alpine
-    env_file:
-      - ./api/.env.production
-    environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+    networks:
+      - app_network
 
 volumes:
-  postgres_data:
+  pg_data_prod:
+
+networks:
+  app_network:

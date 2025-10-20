@@ -1,17 +1,18 @@
 #!/bin/sh
+set -e
 
-# Wait for database to be ready
-echo "Waiting for database to be ready..."
-sleep 5
+echo "🔔 API entrypoint started (NODE_ENV=${NODE_ENV:-development})"
 
-# Run migrations
-echo "Running database migrations..."
+echo "🧩 Running Prisma migrations..."
 npx prisma migrate deploy
 
-# Generate Prisma Client
-echo "Generating Prisma Client..."
+echo "🛠 Generating Prisma client..."
 npx prisma generate
 
-# Start the application
-echo "Starting the application..."
-npm run start:prod
+if [ "$NODE_ENV" = "production" ] || [ "$NODE_ENV" = "staging" ]; then
+  echo "🚀 Starting app (production mode)"
+  exec npm run start:prod
+else
+  echo "🚀 Starting app (development mode)"
+  exec npm run start:dev
+fi
