@@ -48,7 +48,9 @@ It allows users to **register, log in, and manage tasks** in a kanban-style UI.
    JWT_EXPIRATION=20m
    ```
 
-2. Start the application:
+2. Create a `.env` file into the root dir besides docker-compose files and copy your desired env variables into it (`.env.development`|`.env.staging`|`.env.production`).
+
+3. Start the application:
 
    ```bash
    # For production
@@ -61,7 +63,7 @@ It allows users to **register, log in, and manage tasks** in a kanban-style UI.
    docker-compose -f docker-compose.staging.yml up -d
    ```
 
-3. Access the application:
+4. Access the application:
    - Frontend: http://localhost:80 (production), http://localhost (dev/staging)
    - API & Swagger docs: http://localhost:3000/swagger
    - Database management (Adminer): http://localhost:8080
